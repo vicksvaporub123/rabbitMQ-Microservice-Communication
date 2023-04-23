@@ -4,8 +4,8 @@ from pymongo import MongoClient
 
 
 client = MongoClient('mongodb://mongo:27017/')
-db = client['student_management']
-collection = db['students']
+db = client['local']
+collection = db['student']
 
 
 def callback(ch, method, properties, body):
