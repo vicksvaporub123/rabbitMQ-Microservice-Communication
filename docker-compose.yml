@@ -1,94 +1,56 @@
 version: '3'
 
-services:
-  rabbitmq:
-    image: rabbitmq:3-management
-    ports:
-      - 5672:5672
-      - 15672:15672
-    environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
-      RABBITMQ_DEFAULT_VHOST: "/"
-    networks:
-      - rabbitmq
-    # volumes:
-    #   - rabbitmq-data:/var/lib/rabbitmq
-
-  http-server:
-    build: ./producer
-    ports:
-      - 8080:8080
-    depends_on:
-      - rabbitmq
-    environment:
-      RABBITMQ_HOST: rabbitmq
-      RABBITMQ_PORT: 5672
-      RABBITMQ_USER: "guest"
-      RABBITMQ_PASSWORD: "guest"
-    networks:
-      - default
-
-  health-check:
-    build: ./consumer_one
-    depends_on:
-      - rabbitmq
-    environment:
-      RABBITMQ_HOST: rabbitmq
-      RABBITMQ_PORT: 5672
-      RABBITMQ_USER: "guest"
-      RABBITMQ_PASSWORD: "guest"
-    networks:
-      - default
-
-  insertion:
-    build: ./consumer_two
-    depends_on:
-      - rabbitmq
-    environment:
-      RABBITMQ_HOST: rabbitmq
-      RABBITMQ_PORT: 5672
-      RABBITMQ_USER: "guest"
-      RABBITMQ_PASSWORD: "guest"
-    networks:
-      - default
-
-  retrieval:
-    build: ./consumer_four
-    depends_on:
-      - rabbitmq
-    environment:
-      RABBITMQ_HOST: rabbitmq
-      RABBITMQ_PORT: 5672
-      RABBITMQ_USER: "guest"
-      RABBITMQ_PASSWORD: "guest"
-    networks:
-      - default
-
-  deletion:
-    build: ./consumer_three
-    depends_on:
-      - rabbitmq
-    environment:
-      RABBITMQ_HOST: rabbitmq
-      RABBITMQ_PORT: 5672
-      RABBITMQ_USER: "guest"
-      RABBITMQ_PASSWORD: "guest"
-    networks:
-      - default
-
-  mongodb:
-    image: mongo:6-jammy
-    ports:
-      - 27017:27017
-    networks:
-      - default
-
 networks:
-  rabbitmq:
-    driver: bridge
-  default:
-    driver: bridge
+  app_network:
+    external: true
 
-volumes:
-  rabbitmq-data:
+services:
+  # mysql:
+  #   image: mysql
+  #   environment:
+  #     MYSQL_DATABASE: 'student_records'
+  #     MYSQL_ROOT_PASSWORD: 'root'
+
+  producer:
+    build:
+      context: ./producer
+      dockerfile: Dockerfile
+    container_name: producer
+    ports:
+      - "5000:5000"
+
+  consumer1:
+    build:
+      context: ./consumer1
+      dockerfile: Dockerfile
+    container_name: consumer1
+    depends_on:
+      - producer
+    
+    
+  consumer2:
+    build:
+      context: ./consumer2
+      dockerfile: Dockerfile
+    container_name: consumer2
+    depends_on:
+      - producer
+    
+  consumer3:
+    build:
+      context: ./consumer3
+      dockerfile: Dockerfile
+    container_name: consumer3
+    depends_on:
+      - producer
+    
+
+  consumer4:
+    build:
+      context: ./consumer4
+      dockerfile: Dockerfile
+    container_name: consumer4
+    depends_on:
+      - producer
+    
+    
